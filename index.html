@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เลือกหมวดคำศัพท์</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>เลือกหมวดคำศัพท์</h1>
+    <div class="category-container" id="category-list">
+        <p>กำลังโหลด...</p>
+    </div>
+
+    <script>
+        async function loadCategories() {
+            const apiUrl = "https://script.google.com/macros/s/AKfycbxli4blycvu9hp3obHsq7Geu8Z71I2XjwR5Td61QnSpsMboifhif0IIn5HtZu4CeUIB/exec"; // ใส่ URL ของคุณ
+            try {
+                const response = await fetch(apiUrl);
+                const categories = await response.json();
+                const container = document.getElementById("category-list");
+                container.innerHTML = ""; // ล้างข้อความ "กำลังโหลด..."
+
+                categories.forEach(category => {
+                    const card = document.createElement("div");
+                    card.className = "category-card";
+                    card.textContent = category;
+                    card.onclick = () => window.location.href = `flashcard.html?category=${encodeURIComponent(category)}`;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error("Error loading categories:", error);
+            }
+        }
+
+        loadCategories();
+    </script>
+</body>
+</html>

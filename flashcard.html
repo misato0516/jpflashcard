@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แฟลชการ์ด</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1 id="category-title">กำลังโหลด...</h1>
+    
+    <div class="flashcard-container">
+        <div class="flashcard" onclick="flipCard()">
+            <div class="front" id="question">Loading...</div>
+            <div class="back">
+                <div class="answer" id="answer1">Loading...</div>
+                <div class="answer" id="answer2">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="button-container">
+        <button onclick="goHome()">Home</button>
+        <button onclick="nextCard()">ถัดไป</button>
+    </div>
+
+    <script src="flashcard.js"></script>
+</body>
+</html>

@@ -2,6 +2,8 @@ let flashcards = [];
 let currentIndex = 0;
 let isFlipped = false;
 let startX = 0;
+let offsetX = 0;
+const threshold = 100; // ระยะที่ต้องลากเพื่อเปลี่ยนการ์ด
 
 // รับค่าหมวดหมู่จาก URL
 const urlParams = new URLSearchParams(window.location.search);
@@ -28,7 +30,7 @@ function showCard(index) {
     document.getElementById('question').textContent = flashcards[index].question;
     document.getElementById('answer1').textContent = flashcards[index].answer1;
     document.getElementById('answer2').textContent = flashcards[index].answer2;
-    document.querySelector('.flashcard').style.transform = 'rotateY(0deg)';
+    document.querySelector('.flashcard').style.transform = 'translateX(0px) rotateY(0deg)';
     isFlipped = false;
 }
 
@@ -39,9 +41,15 @@ function flipCard() {
     isFlipped = !isFlipped;
 }
 
-// ฟังก์ชันปุ่ม "ถัดไป"
+// ฟังก์ชันเปลี่ยนไปการ์ดถัดไป
 function nextCard() {
     currentIndex = (currentIndex + 1) % flashcards.length;
+    showCard(currentIndex);
+}
+
+// ฟังก์ชันย้อนกลับไปการ์ดก่อนหน้า
+function prevCard() {
+    currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
     showCard(currentIndex);
 }
 
@@ -50,19 +58,69 @@ function goHome() {
     window.location.href = "index.html";
 }
 
-// ตรวจจับการปัดหน้าจอ
-document.addEventListener("touchstart", (event) => {
+// ตรวจจับการลาก (Drag)
+const card = document.querySelector('.flashcard');
+
+card.addEventListener("touchstart", (event) => {
     startX = event.touches[0].clientX;
+    offsetX = 0;
 });
 
-document.addEventListener("touchend", (event) => {
-    let endX = event.changedTouches[0].clientX;
-    let diffX = startX - endX;
+card.addEventListener("touchmove", (event) => {
+    offsetX = event.touches[0].clientX - startX;
+    card.style.transform = `translateX(${offsetX}px) rotate(${offsetX / 10}deg)`;
+});
 
-    if (diffX > 50) {
-        nextCard();
+card.addEventListener("touchend", () => {
+    if (offsetX > threshold) {
+        prevCard(); // ปัดขวา -> ย้อนกลับการ์ด
+    } else if (offsetX < -threshold) {
+        nextCard(); // ปัดซ้าย -> การ์ดถัดไป
     }
+    card.style.transition = "transform 0.3s ease";
+    card.style.transform = "translateX(0px)";
+    setTimeout(() => {
+        card.style.transition = "";
+    }, 300);
 });
+
+// ฟังก์ชันเปลี่ยนไปการ์ดถัดไป พร้อมแอนิเมชันเลื่อนออก
+function nextCard() {
+    const card = document.querySelector('.flashcard');
+    card.style.transition = "transform 0.3s ease";
+    card.style.transform = "translateX(-100vw) rotate(-15deg)";
+
+    setTimeout(() => {
+        currentIndex = (currentIndex + 1) % flashcards.length;
+        showCard(currentIndex);
+        card.style.transition = "none";
+        card.style.transform = "translateX(100vw) rotate(15deg)";
+        
+        setTimeout(() => {
+            card.style.transition = "transform 0.3s ease";
+            card.style.transform = "translateX(0) rotate(0)";
+        }, 50);
+    }, 300);
+}
+
+// ฟังก์ชันย้อนกลับไปการ์ดก่อนหน้า พร้อมแอนิเมชันเลื่อนออกทางขวา
+function prevCard() {
+    const card = document.querySelector('.flashcard');
+    card.style.transition = "transform 0.3s ease";
+    card.style.transform = "translateX(100vw) rotate(15deg)";
+
+    setTimeout(() => {
+        currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
+        showCard(currentIndex);
+        card.style.transition = "none";
+        card.style.transform = "translateX(-100vw) rotate(-15deg)";
+        
+        setTimeout(() => {
+            card.style.transition = "transform 0.3s ease";
+            card.style.transform = "translateX(0) rotate(0)";
+        }, 50);
+    }, 300);
+}
 
 // โหลดเซตเริ่มต้น
 fetchFlashcards();
